@@ -5,29 +5,32 @@ import { metalService } from '../_services';
 
 export const historicalActions = {
     getHistorical,
+    getHistoricalRequest,
+    getHistoricalSuccess,
+    getHistoricalFailure
 };
 
-function getHistorical(date) {
+function getHistorical(currency,date,symbols) {
     return dispatch => {
-        dispatch(request());
+        dispatch(getHistoricalRequest());
 
-        metalService.getHistorical(date)
+        metalService.getHistorical(currency,date,symbols)
             .then(
                 items => {
-                    dispatch(success(items));
-                    console.log("getHistorical action");
-                    console.log(items);
+                    dispatch(getHistoricalSuccess(items));
                     // history.push(from);
                 },
                 error => {
-                    dispatch(failure(error.toString()));
+                    dispatch(getHistoricalFailure(error.toString()));
                     // dispatch(alertActions.error(error.toString()));
                 }
             );
     };
 
-    function request() { return { type: historicalConstants.GETALL_REQUEST } }
-    function success(items) { return { type: historicalConstants.GETALL_SUCCESS, items } }
-    function failure(error) { return { type: historicalConstants.GETALL_FAILURE, error } }
+
 }
+
+function getHistoricalRequest() { return { type: historicalConstants.GETALL_REQUEST } }
+function getHistoricalSuccess(items) { return { type: historicalConstants.GETALL_SUCCESS, items } }
+function getHistoricalFailure(error) { return { type: historicalConstants.GETALL_FAILURE, error } }
 

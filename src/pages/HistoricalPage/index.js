@@ -6,9 +6,9 @@ import {alertActions, historicalActions} from '../../_actions';
 import {metalService} from '../../_services/index';
 import {useDispatch, useSelector} from "react-redux";
 import {ResponsiveBar} from "@nivo/bar";
-import "./prices.css";
+import "./historical.css";
 
-function PricesPage() {
+function HistoricalPage() {
     // const users = useSelector(state => state.users);
     // const user = useSelector(state => state.authentication.user);
     const [date,setDate] = useState('');
@@ -98,8 +98,8 @@ function PricesPage() {
     }
 
     return (
-        <div className="prices-page">
-            <h1>Prices Page</h1>
+        <div className="historical-page">
+            <h1>Historical Page</h1>
             <div className="card">
                 <div className="row">
                 <div className="col-md-4">
@@ -252,4 +252,4 @@ function PricesPage() {
     );
 }
 
-export { PricesPage };
+export { HistoricalPage };

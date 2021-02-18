@@ -1,4 +1,5 @@
 import { config } from '../_helpers';
+import {useSelector} from "react-redux";
 
 export const metalService = {
     getLatest,
@@ -13,12 +14,12 @@ function getLatest() {
     return fetch(`${config.apiUrl}/latest?access_key=${config.accessKey}&base=USD&symbols=XAU,XAG`, requestOptions).then(handleResponse);
 }
 
-function getHistorical(date) {
+function getHistorical(currency,date,symbols) {
     const requestOptions = {
         method: 'GET',
     };
 
-    return fetch(`${config.apiUrl}/${date}?access_key=${config.accessKey}&base=USD&symbols=XAU,XAG`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/${date}?access_key=${config.accessKey}&base=${currency}&symbols=${symbols}`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {
