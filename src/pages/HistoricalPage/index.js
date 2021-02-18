@@ -1,96 +1,144 @@
 import React, {useEffect, useState} from 'react';
 // import { Link } from 'react-router-dom';
-// import { useDispatch, useSelector } from 'react-redux';
 import {config} from "../../_helpers";
-import {alertActions, historicalActions} from '../../_actions';
+import {alertActions, timeSeriesActions} from '../../_actions';
 import {metalService} from '../../_services/index';
 import {useDispatch, useSelector} from "react-redux";
 import {ResponsiveBar} from "@nivo/bar";
 import "./historical.css";
+import {timeSeries} from "../../_reducers/timeseries.reducer";
 
 function HistoricalPage() {
     // const users = useSelector(state => state.users);
     // const user = useSelector(state => state.authentication.user);
-    const [date,setDate] = useState('');
-    const [dateValid,setDateValid] = useState(true);
-    const [symbols,setSymbols] = useState([]);
+    const [fromDate,setFromDate] = useState('');
+    const [toDate,setToDate] = useState('');
+    const [fromDateValid,setFromDateValid] = useState(true);
+    const [toDateValid,setToDateValid] = useState(true);
+    const [symbols,setSymbols] = useState('XAU');
     // let symbols = [];
     const [submitted, setSubmitted] = useState(false);
     const currency = useSelector(state => state.currency.currency);
     const dispatch = useDispatch();
     const metals = config.metals;
-    const items = useSelector(state => state.historical);
-    const loading = useSelector(state => state.historical.loading);
+    const items = useSelector(state => state.timeSeries);
+    const loading = useSelector(state => state.timeSeries.loading);
     let [rates,setRates] = useState([]);
 
     let [data,setData] = useState([]);
 
     let [keys,setKeys] = useState([]);
     useEffect(() => {
-
+        dispatch(alertActions.clear());
     }, []);
 
     function handleSymbolsChange (e) {
         let value = Array.from(e.target.selectedOptions, option => option.value);
         let text = Array.from(e.target.selectedOptions, option => option.text);
         setSymbols(value);
-
+        console.log(value);
     }
-    function handleDateChange(e) {
+    function handleFromDateChange(e) {
         const { name, value } = e.target;
-        setDate(value);
-        setDateValid(new Date(value) >= new Date('01-01-2010'));
+        setFromDate(value);
+        setFromDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()));
+    }
+
+    function handleToDateChange(e) {
+        const { name, value } = e.target;
+        setToDate(value);
+        let Difference_In_Time = toDate.getTime() - fromDate.getTime();
+        let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        let calcPeriod = (Difference_In_Days>1 && Difference_In_Days <=20);
+        setToDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()) &&(calcPeriod));
+        console.log("period : "+Difference_In_Days);
+        console.log((new Date(value)-new Date(fromDate)));
     }
 
     function getCurrentDate(){
-        let newDate = new Date();
-        let date = newDate.getDate();
-        let month = newDate.getMonth() + 1;
-        let year = newDate.getFullYear();
-        let separator = '-';
-
-        let fullDate = `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${date}`;
-        setDateValid(new Date(fullDate) >= new Date('01-01-2010'));
-        setDate(fullDate);
+        // let newDate = new Date();
+        // let date = newDate.getDate();
+        // let month = newDate.getMonth() + 1;
+        // let year = newDate.getFullYear();
+        // let separator = '-';
+        //
+        // let fullDate = `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${date}`;
+        // setDateValid(new Date(fullDate) >= new Date('01-01-2010'));
+        // setDate(fullDate);
     }
+
+    // 2021-02-06: {XAG: 22.32779921433107}
+    // XAG: 22.32779921433107
+    // 2021-02-07: {XAG: 22.599422874534802}
+    // 2021-02-08: {XAG: 22.600905407100477}
+    // 2021-02-09: {XAG: 22.45667480541133}
+    // 2021-02-10: {XAG: 22.279104897457895}
+    // start_date: "2021-02-06"
 
     function handleSubmit() {
 
         setSubmitted(true);
+        // let tmpData = [
+        //     {
+        //         "date":"2021-02-06",
+        //         "Silver XAG":1
+        //     },
+        //     {
+        //         "date":"2021-02-07",
+        //         "Silver XAG":2
+        //     },
+        //     {
+        //         "date":"2021-02-08",
+        //         "Silver XAG":3
+        //     }
+        // ];
+        // setKeys(["Silver XAG"]);
+        // setRates([keys]);
 
-        if (date && symbols.length>0&&dateValid) {
+            // return;
+        if (fromDate &&toDate&&fromDateValid&& toDateValid) {
 
-            dispatch(historicalActions.getHistoricalRequest());
+            dispatch(timeSeriesActions.getTimeSeriesRequest());
 
-            metalService.getHistorical(currency,date,symbols)
+            metalService.getTimeSeries(currency,fromDate,toDate,symbols)
                 .then(
                     items => {
-                        dispatch(historicalActions.getHistoricalSuccess(items));
-                        dispatch(alertActions.success('Data fetched successfully'));
-                        // setKeys([]);
-                        let tmpKeysArr = [];
-
-
-                        let tmpData = [{
-                            "date":date,
-                        }];
-
-                        let rates = items.rates;
-                        if(rates!==undefined && rates !== null){
-                            for (const [key, value] of Object.entries(rates)) {
-                                let item = metals.find((item => item.value === key));
-                                tmpData[0][item.name + ' ' + item.value] = value;
-                                tmpKeysArr.push(item.name + ' ' + item.value);
-                                setRates([key]);
-                            }
-
-                            setKeys(tmpKeysArr);
-                            setData(tmpData);
+                        if(!items.success){
+                            dispatch(timeSeriesActions.getTimeSeriesFailure(items.error.info.toString()));
+                            dispatch(alertActions.error(items.error.info.toString()));
+                            return;
                         }
+                        dispatch(timeSeriesActions.getTimeSeriesSuccess(items));
+                        dispatch(alertActions.success('Data fetched successfully'));
+
+                        // return;
+                        let tmpKeysArr = [];
+                        let tmpData = [];
+                        let rates = items.rates;
+                        for (const [key, value] of Object.entries(rates)) {
+                            let tmpObj = {"date":key};
+                            for (const [secKey, secValue] of Object.entries(value)){
+                                let item = metals.find((item => item.value === secKey));
+                                tmpObj[item.name + ' ' + item.value] = secValue;
+                                tmpData.push(tmpObj);
+
+                            }
+                            tmpKeysArr.push(key);
+                        }
+                        console.log("symbols");
+                        console.log(symbols);
+                        let item = metals.find((item => item.value === symbols));
+                        console.log("item");
+                        console.log(item);
+                        setKeys([item.name + ' ' + item.value]);
+                        // console.log(("tmpData"));
+                        // console.log(tmpData);
+                        setRates(tmpKeysArr);
+                        setData(tmpData);
 
                     },
                     error => {
-                        dispatch(historicalActions.getHistoricalFailure(error.toString()));
+                        dispatch(timeSeriesActions.getTimeSeriesFailure(error.toString()));
                         dispatch(alertActions.error(error.toString()));
                     }
                 );
@@ -99,14 +147,14 @@ function HistoricalPage() {
 
     return (
         <div className="historical-page">
-            <h1>Historical Page</h1>
+            <h1 className="page-title">Historical Page</h1>
             <div className="card">
                 <div className="row">
                 <div className="col-md-4">
                     <div className="form-group">
                         <label htmlFor="exampleFormControlSelect2">Select at least one Metal</label>
-                        <select id="exampleFormControlSelect2" multiple
-                                className={'form-control' + (submitted && symbols.length===0 ? ' is-invalid' : '')}
+                        <select id="exampleFormControlSelect2"
+                                className={'form-control'}
                                 onChange={handleSymbolsChange}>
                             {
                                 metals.map((item,index)=>
@@ -115,30 +163,41 @@ function HistoricalPage() {
                             }
 
                         </select>
-                        {submitted && symbols.length===0 &&
-                        <div className="invalid-feedback">This field is required</div>
-                        }
+                        {/*{submitted && symbols.length===0 &&*/}
+                        {/*<div className="invalid-feedback">This field is required</div>*/}
+                        {/*}*/}
                     </div>
                 </div>
 
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label htmlFor="exampleFormControlSelect1">Select Date</label>
-                        <input type="date" id="datepicker" value={date}
-                               className={'form-control' + ((submitted && !date)||(submitted&&!dateValid) ? ' is-invalid' : '')}
-                               onChange={handleDateChange}/>
-                        {submitted && !date &&
+                        <label htmlFor="exampleFormControlSelect1">From Date</label>
+                        <input type="date" id="datepicker" value={fromDate}
+                               className={'form-control' + ((submitted && !fromDate)||(submitted&&!fromDateValid) ? ' is-invalid' : '')}
+                               onChange={handleFromDateChange}/>
+                        {submitted && !fromDate &&
                         <div className="invalid-feedback">This field is required</div>
                         }
-                        {submitted && !dateValid &&
+                        {submitted && !fromDateValid &&
                         <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>
                         }
                     </div>
-                    <div className="form-group">
-                        <button className="btn btn-primary" onClick={getCurrentDate}>Today</button>
-                    </div>
-
                 </div>
+
+                    <div className="col-md-4">
+                        <div className="form-group">
+                            <label htmlFor="exampleFormControlSelect1">To Date</label>
+                            <input type="date" id="datepicker" value={toDate}
+                                   className={'form-control' + ((submitted && !toDate)||(submitted&&!toDateValid) ? ' is-invalid' : '')}
+                                   onChange={handleToDateChange}/>
+                            {submitted && !toDate &&
+                            <div className="invalid-feedback">This field is required</div>
+                            }
+                            {submitted && !toDateValid &&
+                            <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>
+                            }
+                        </div>
+                    </div>
 
                 <div className="col-4">
                     <div className="form-group">

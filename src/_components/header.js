@@ -20,7 +20,7 @@ function Header() {
 
     return(
         <div>
-            <nav className="navbar navbar-expand-sm bg-dark navbar-dark">
+            <nav className="navbar navbar-expand-sm navbar-dark">
 
                 <a className="navbar-brand" href="#">
                     Metals Calculator

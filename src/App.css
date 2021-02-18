@@ -34,12 +34,18 @@
 }
 
 .navbar{
-  padding-top: 22px;
-  padding-bottom: 22px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #08c;
 }
 
 .navbar-brand{
   font-size: 24px;
   font-weight: bold;
   letter-spacing: 1px;
+}
+
+.page-title{
+  color: #2896dd;
+  font-weight: bold;
 }

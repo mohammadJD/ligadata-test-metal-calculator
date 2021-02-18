@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 // import { Link } from 'react-router-dom';
 // import { useDispatch, useSelector } from 'react-redux';
 import {config} from "../../_helpers";
-import {alertActions, historicalActions} from '../../_actions';
+import {alertActions, historicalActions, timeSeriesActions} from '../../_actions';
 import {metalService} from '../../_services/index';
 import {useDispatch, useSelector} from "react-redux";
 import {ResponsiveBar} from "@nivo/bar";
@@ -27,7 +27,7 @@ function PricesPage() {
 
     let [keys,setKeys] = useState([]);
     useEffect(() => {
-
+        dispatch(alertActions.clear());
     }, []);
 
     function handleSymbolsChange (e) {
@@ -39,7 +39,7 @@ function PricesPage() {
     function handleDateChange(e) {
         const { name, value } = e.target;
         setDate(value);
-        setDateValid(new Date(value) >= new Date('01-01-2010'));
+        setDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()));
     }
 
     function getCurrentDate(){
@@ -65,6 +65,11 @@ function PricesPage() {
             metalService.getHistorical(currency,date,symbols)
                 .then(
                     items => {
+                        if(!items.success){
+                            dispatch(timeSeriesActions.getTimeSeriesFailure(items.error.info.toString()));
+                            dispatch(alertActions.error(items.error.info.toString()));
+                            return;
+                        }
                         dispatch(historicalActions.getHistoricalSuccess(items));
                         dispatch(alertActions.success('Data fetched successfully'));
                         // setKeys([]);
@@ -99,7 +104,7 @@ function PricesPage() {
 
     return (
         <div className="prices-page">
-            <h1>Prices Page</h1>
+            <h1 className="page-title">Prices Page</h1>
             <div className="card">
                 <div className="row">
                 <div className="col-md-4">
