@@ -6,17 +6,22 @@ import {metalService} from '../../_services/index';
 import {useDispatch, useSelector} from "react-redux";
 import {ResponsiveBar} from "@nivo/bar";
 import "./historical.css";
-import {timeSeries} from "../../_reducers/timeseries.reducer";
+
+import DateRangePicker from 'react-bootstrap-daterangepicker';
+// you will need the css that comes with bootstrap@3. if you are using
+// a tool like webpack, you can do the following:
+// import 'bootstrap/dist/css/bootstrap.css';
+// you will also need the css that comes with bootstrap-daterangepicker
+import 'bootstrap-daterangepicker/daterangepicker.css';
 
 function HistoricalPage() {
-    // const users = useSelector(state => state.users);
-    // const user = useSelector(state => state.authentication.user);
-    const [fromDate,setFromDate] = useState('');
-    const [toDate,setToDate] = useState('');
-    const [fromDateValid,setFromDateValid] = useState(true);
-    const [toDateValid,setToDateValid] = useState(true);
+    const [fromDate,setFromDate] = useState(getFullDate(new Date()));
+    const [toDate,setToDate] = useState(getFullDate(new Date()));
+    // const [fromDateValid,setFromDateValid] = useState(true);
+    // const [toDateValid,setToDateValid] = useState(true);
+    const [dateValid,setDateValid] = useState(true);
     const [symbols,setSymbols] = useState('XAU');
-    // let symbols = [];
+
     const [submitted, setSubmitted] = useState(false);
     const currency = useSelector(state => state.currency.currency);
     const dispatch = useDispatch();
@@ -38,33 +43,31 @@ function HistoricalPage() {
         setSymbols(value);
         console.log(value);
     }
-    function handleFromDateChange(e) {
-        const { name, value } = e.target;
-        setFromDate(value);
-        setFromDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()));
-    }
+    // function handleFromDateChange(e) {
+    //     const { name, value } = e.target;
+    //     setFromDate(value);
+    //     setFromDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()));
+    // }
 
-    function handleToDateChange(e) {
-        const { name, value } = e.target;
-        setToDate(value);
-        let Difference_In_Time = toDate.getTime() - fromDate.getTime();
-        let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-        let calcPeriod = (Difference_In_Days>1 && Difference_In_Days <=20);
-        setToDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()) &&(calcPeriod));
-        console.log("period : "+Difference_In_Days);
-        console.log((new Date(value)-new Date(fromDate)));
-    }
+    // function handleToDateChange(e) {
+    //     const { name, value } = e.target;
+    //     setToDate(value);
+    //     let Difference_In_Time = toDate.getTime() - fromDate.getTime();
+    //     let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+    //     let calcPeriod = (Difference_In_Days>1 && Difference_In_Days <=20);
+    //     setToDateValid((new Date(value) >= new Date('01-01-2010'))&&(new Date(value)<=new Date()) &&(calcPeriod));
+    //     console.log("period : "+Difference_In_Days);
+    //     console.log((new Date(value)-new Date(fromDate)));
+    // }
 
-    function getCurrentDate(){
-        // let newDate = new Date();
-        // let date = newDate.getDate();
-        // let month = newDate.getMonth() + 1;
-        // let year = newDate.getFullYear();
-        // let separator = '-';
-        //
-        // let fullDate = `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${date}`;
-        // setDateValid(new Date(fullDate) >= new Date('01-01-2010'));
-        // setDate(fullDate);
+    function getFullDate(date){
+        let newDate = new Date(date);
+        let day = newDate.getDate();
+        let month = newDate.getMonth() + 1;
+        let year = newDate.getFullYear();
+        let separator = '-';
+
+        return `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${day}`;
     }
 
     // 2021-02-06: {XAG: 22.32779921433107}
@@ -96,7 +99,7 @@ function HistoricalPage() {
         // setRates([keys]);
 
             // return;
-        if (fromDate &&toDate&&fromDateValid&& toDateValid) {
+        if (fromDate &&toDate&& dateValid) {
 
             dispatch(timeSeriesActions.getTimeSeriesRequest());
 
@@ -119,18 +122,19 @@ function HistoricalPage() {
                             let tmpObj = {"date":key};
                             for (const [secKey, secValue] of Object.entries(value)){
                                 let item = metals.find((item => item.value === secKey));
-                                tmpObj[item.name + ' ' + item.value] = secValue;
-                                tmpData.push(tmpObj);
-
+                                if(item!==undefined){
+                                    tmpObj[item.name + ' ' + item.value] = secValue;
+                                    tmpData.push(tmpObj);
+                                }
                             }
                             tmpKeysArr.push(key);
                         }
                         console.log("symbols");
                         console.log(symbols);
                         let item = metals.find((item => item.value === symbols));
-                        console.log("item");
-                        console.log(item);
-                        setKeys([item.name + ' ' + item.value]);
+                        if(item!==undefined){
+                            setKeys([item.name + ' ' + item.value]);
+                        }
                         // console.log(("tmpData"));
                         // console.log(tmpData);
                         setRates(tmpKeysArr);
@@ -143,6 +147,28 @@ function HistoricalPage() {
                     }
                 );
         }
+    }
+
+    function handlePickerCallback(start, end, label) {
+        let fromDate = getFullDate(start._d);
+        let toDate = getFullDate(end._d);
+
+        let Difference_In_Time = new Date(toDate).getTime() - new Date(fromDate).getTime();
+        let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        let calcPeriod = (Difference_In_Days>=0 && Difference_In_Days <=20);
+        setDateValid((new Date(fromDate) >= new Date('01-01-2010'))&&(new Date(toDate)<=new Date()) &&(calcPeriod));
+        // console.log("Difference_In_Days");
+        // console.log(Difference_In_Days);
+        // console.log("is valid");
+        // console.log((new Date(fromDate) >= new Date('01-01-2010'))&&(new Date(toDate)<=new Date()) &&(calcPeriod));
+        // console.log("dateValid");
+        // console.log(dateValid);
+        // console.log("fromDate");
+        // console.log(fromDate);
+        // console.log("toDate");
+        // console.log(toDate);
+        setFromDate(fromDate);
+        setToDate(toDate);
     }
 
     return (
@@ -171,33 +197,47 @@ function HistoricalPage() {
 
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label htmlFor="exampleFormControlSelect1">From Date</label>
-                        <input type="date" id="datepicker" value={fromDate}
-                               className={'form-control' + ((submitted && !fromDate)||(submitted&&!fromDateValid) ? ' is-invalid' : '')}
-                               onChange={handleFromDateChange}/>
-                        {submitted && !fromDate &&
-                        <div className="invalid-feedback">This field is required</div>
-                        }
-                        {submitted && !fromDateValid &&
-                        <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>
+                        <label>Pick Interval Date</label>
+                        <DateRangePicker onCallback={handlePickerCallback}
+                        >
+                            {/*<button className="btn btn-primary">Click Me To Open Picker!</button>*/}
+                            <input type="text" className={'form-control' + ((submitted&&!dateValid) ? ' is-invalid' : '')}/>
+                        </DateRangePicker>
+                        {submitted && !dateValid &&
+                        <div className="invalid-feedback">- Please select date from 01-01-2010 until today<br/>
+                           - The period between start and end date must be minus or equal to 20
+                        </div>
                         }
                     </div>
+
+                    {/*<div className="form-group">*/}
+                    {/*    <label htmlFor="exampleFormControlSelect1">From Date</label>*/}
+                    {/*    <input type="date" id="datepicker" value={fromDate}*/}
+                    {/*           className={'form-control' + ((submitted && !fromDate)||(submitted&&!fromDateValid) ? ' is-invalid' : '')}*/}
+                    {/*           onChange={handleFromDateChange}/>*/}
+                    {/*    {submitted && !fromDate &&*/}
+                    {/*    <div className="invalid-feedback">This field is required</div>*/}
+                    {/*    }*/}
+                    {/*    {submitted && !fromDateValid &&*/}
+                    {/*    <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>*/}
+                    {/*    }*/}
+                    {/*</div>*/}
                 </div>
 
-                    <div className="col-md-4">
-                        <div className="form-group">
-                            <label htmlFor="exampleFormControlSelect1">To Date</label>
-                            <input type="date" id="datepicker" value={toDate}
-                                   className={'form-control' + ((submitted && !toDate)||(submitted&&!toDateValid) ? ' is-invalid' : '')}
-                                   onChange={handleToDateChange}/>
-                            {submitted && !toDate &&
-                            <div className="invalid-feedback">This field is required</div>
-                            }
-                            {submitted && !toDateValid &&
-                            <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>
-                            }
-                        </div>
-                    </div>
+                    {/*<div className="col-md-4">*/}
+                    {/*    <div className="form-group">*/}
+                    {/*        <label htmlFor="exampleFormControlSelect1">To Date</label>*/}
+                    {/*        <input type="date" id="datepicker" value={toDate}*/}
+                    {/*               className={'form-control' + ((submitted && !toDate)||(submitted&&!toDateValid) ? ' is-invalid' : '')}*/}
+                    {/*               onChange={handleToDateChange}/>*/}
+                    {/*        {submitted && !toDate &&*/}
+                    {/*        <div className="invalid-feedback">This field is required</div>*/}
+                    {/*        }*/}
+                    {/*        {submitted && !toDateValid &&*/}
+                    {/*        <div className="invalid-feedback">Please select date from 01-01-2010 until today</div>*/}
+                    {/*        }*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
 
                 <div className="col-4">
                     <div className="form-group">

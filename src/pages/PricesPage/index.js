@@ -84,9 +84,11 @@ function PricesPage() {
                         if(rates!==undefined && rates !== null){
                             for (const [key, value] of Object.entries(rates)) {
                                 let item = metals.find((item => item.value === key));
-                                tmpData[0][item.name + ' ' + item.value] = value;
-                                tmpKeysArr.push(item.name + ' ' + item.value);
-                                setRates([key]);
+                                if(item!==undefined){
+                                    tmpData[0][item.name + ' ' + item.value] = value;
+                                    tmpKeysArr.push(item.name + ' ' + item.value);
+                                    setRates([key]);
+                                }
                             }
 
                             setKeys(tmpKeysArr);
