@@ -4,7 +4,8 @@ import {useSelector} from "react-redux";
 export const metalService = {
     getLatest,
     getHistorical,
-    getTimeSeries
+    getTimeSeries,
+    convert
 };
 
 function getLatest() {
@@ -29,6 +30,14 @@ function getTimeSeries(currency,startDate,endDate,symbols) {
     };
 
     return fetch(`${config.apiUrl}/timeseries?access_key=${config.accessKey}&base=${currency}&symbols=${symbols}&start_date=${startDate}&end_date=${endDate}`, requestOptions).then(handleResponse);
+}
+
+function convert(currency,toCurrency,amount) {
+    const requestOptions = {
+        method: 'GET',
+    };
+
+    return fetch(`${config.apiUrl}/convert?access_key=${config.accessKey}&from=${currency}&to=${toCurrency}&amount=${amount}`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {

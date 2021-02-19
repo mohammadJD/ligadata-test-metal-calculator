@@ -2,19 +2,17 @@ import React, {useEffect, useState} from 'react';
 // import { Link } from 'react-router-dom';
 // import { useDispatch, useSelector } from 'react-redux';
 import {config} from "../../_helpers";
-import {alertActions, historicalActions, timeSeriesActions} from '../../_actions';
+import {alertActions, historicalActions} from '../../_actions';
 import {metalService} from '../../_services/index';
 import {useDispatch, useSelector} from "react-redux";
 import {ResponsiveBar} from "@nivo/bar";
 import "./prices.css";
 
 function PricesPage() {
-    // const users = useSelector(state => state.users);
-    // const user = useSelector(state => state.authentication.user);
     const [date,setDate] = useState('');
     const [dateValid,setDateValid] = useState(true);
     const [symbols,setSymbols] = useState([]);
-    // let symbols = [];
+
     const [submitted, setSubmitted] = useState(false);
     const currency = useSelector(state => state.currency.currency);
     const dispatch = useDispatch();
@@ -66,7 +64,7 @@ function PricesPage() {
                 .then(
                     items => {
                         if(!items.success){
-                            dispatch(timeSeriesActions.getTimeSeriesFailure(items.error.info.toString()));
+                            dispatch(historicalActions.getHistoricalFailure(items.error.info.toString()));
                             dispatch(alertActions.error(items.error.info.toString()));
                             return;
                         }

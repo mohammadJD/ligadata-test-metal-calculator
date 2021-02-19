@@ -34,6 +34,9 @@ function Header() {
                     <li className="nav-item">
                         <span className="nav-link"><Link to="/historical">Historical</Link></span>
                     </li>
+                    <li className="nav-item">
+                        <span className="nav-link"><Link to="/calculator">Calculator</Link></span>
+                    </li>
 
                     <li className="nav-item currency-nav-item">
                         <select className="form-control" id="exampleFormControlSelect1" onChange={changeCurr}

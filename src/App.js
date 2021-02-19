@@ -8,6 +8,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {alertActions} from "./_actions";
 import { history } from './_helpers';
 import {HistoricalPage} from "./pages/HistoricalPage";
+import {CalculatorPage} from "./pages/CalculatorPage";
 
 function App() {
     const alert = useSelector(state => state.alert);
@@ -34,6 +35,7 @@ function App() {
                           <Switch>
                               <Route path="/" exact component={PricesPage} />
                               <Route path="/historical" component={HistoricalPage} />
+                              <Route path="/calculator" component={CalculatorPage} />
                               <Redirect from="*" to="/" />
                           </Switch>
 

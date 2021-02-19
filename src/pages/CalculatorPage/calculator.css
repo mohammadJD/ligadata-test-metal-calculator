@@ -1,0 +1,16 @@
+.calculator-page .submit-btn{
+    margin-top: 30px;
+    margin-left: 10px;
+}
+
+.calculator-page .result-sec .result{
+    font-size: 21px;
+    color: #fff;
+    font-weight: bold;
+    display: inline-block;
+    padding: 20px 17px;
+    background-color: #0088cc;
+    border-radius: 4px;
+    margin-top: 20px;
+    box-shadow: 0 0 3px grey;
+}
