@@ -9,6 +9,8 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.7.1",
     "bootstrap-daterangepicker": "^3.1.0",
+    "cypress": "^6.5.0",
+    "cypress-react-unit-test": "^4.17.2",
     "history": "^5.0.0",
     "jquery": "^3.5.1",
     "moment": "^2.29.1",
@@ -27,7 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "eslintConfig": {
     "extends": [

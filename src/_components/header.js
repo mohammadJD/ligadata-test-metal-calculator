@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import {useDispatch, useSelector} from "react-redux";
 import {config} from "../_helpers";
@@ -8,11 +8,22 @@ function Header() {
     const currency = useSelector(state => state.currency.currency);
     const currencies = config.currencies;
     const dispatch = useDispatch();
+    let [currentDate,setCurrentDate] = useState(getFullDate(new Date()));
 
     useEffect(() => {
         dispatch(currencyActions.getCurrency());
 
     }, []);
+
+    function getFullDate(date){
+        let newDate = new Date(date);
+        let day = newDate.getDate();
+        let month = newDate.getMonth() + 1;
+        let year = newDate.getFullYear();
+        let separator = '-';
+
+        return `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${day}`;
+    }
 
     function changeCurr(event) {
         dispatch(currencyActions.setCurrency(event.target.value));
@@ -32,10 +43,13 @@ function Header() {
                         <span className="nav-link"><Link to="/">Prices</Link></span>
                     </li>
                     <li className="nav-item">
-                        <span className="nav-link"><Link to="/historical">Historical</Link></span>
+                        <span className="nav-link"><Link id="go-historical" to="/historical">Historical</Link></span>
                     </li>
                     <li className="nav-item">
-                        <span className="nav-link"><Link to="/calculator">Calculator</Link></span>
+                        <span className="nav-link"><Link id="go-calculator" to="/calculator">Calculator</Link></span>
+                    </li>
+                    <li className="nav-item date-nav-item">
+                        <span className="nav-link"><a>{currentDate}</a></span>
                     </li>
 
                     <li className="nav-item currency-nav-item">

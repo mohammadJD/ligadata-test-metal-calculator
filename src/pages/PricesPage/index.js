@@ -110,7 +110,7 @@ function PricesPage() {
                 <div className="col-md-4">
                     <div className="form-group">
                         <label htmlFor="exampleFormControlSelect2">Select at least one Metal</label>
-                        <select id="exampleFormControlSelect2" multiple
+                        <select id="exampleFormControlSelect2" multiple name="symbols"
                                 className={'form-control' + (submitted && symbols.length===0 ? ' is-invalid' : '')}
                                 onChange={handleSymbolsChange}>
                             {
@@ -129,7 +129,7 @@ function PricesPage() {
                 <div className="col-md-4">
                     <div className="form-group">
                         <label htmlFor="exampleFormControlSelect1">Select Date</label>
-                        <input type="date" id="datepicker" value={date}
+                        <input type="date" id="datepicker" value={date} name="date"
                                className={'form-control' + ((submitted && !date)||(submitted&&!dateValid) ? ' is-invalid' : '')}
                                onChange={handleDateChange}/>
                         {submitted && !date &&
@@ -147,7 +147,7 @@ function PricesPage() {
 
                 <div className="col-4">
                     <div className="form-group">
-                        <button className="submit-btn btn btn-primary" onClick={handleSubmit}>
+                        <button id="submit-btn" className="submit-btn btn btn-primary" onClick={handleSubmit}>
                             {loading && <span className="spinner-border spinner-border-sm mr-1"></span>}
                             Submit</button>
                     </div>

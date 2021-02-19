@@ -1,4 +1,6 @@
-
+*{
+  outline: none !important;
+}
 .chart{
   height: 500px;
 }
@@ -10,7 +12,7 @@
 }
 
 .nav-item a{
-  color: #ffffff;
+  color: #ffffff !important;
   font-size: 17px;
   font-weight: bold;
   position: relative;

@@ -33,7 +33,7 @@ function HistoricalPage() {
     function handleSymbolsChange (e) {
         let value = Array.from(e.target.selectedOptions, option => option.value);
         let text = Array.from(e.target.selectedOptions, option => option.text);
-        setSymbols(value);
+        setSymbols(value[0]);
     }
 
     function getFullDate(date){
@@ -79,9 +79,14 @@ function HistoricalPage() {
                             }
                             tmpKeysArr.push(key);
                         }
+                        let tmpKey = [] ;
+
                         let item = metals.find((item => item.value === symbols));
                         if(item!==undefined){
-                            setKeys([item.name + ' ' + item.value]);
+                            tmpKey = [item.name + ' ' + item.value];
+                            setKeys(tmpKey);
+                            console.log("tmpKey");
+                            console.log(tmpKey);
                         }
                         setRates(tmpKeysArr);
                         setData(tmpData);
@@ -116,7 +121,7 @@ function HistoricalPage() {
                 <div className="col-md-4">
                     <div className="form-group">
                         <label htmlFor="exampleFormControlSelect2">Select at least one Metal</label>
-                        <select id="exampleFormControlSelect2"
+                        <select id="exampleFormControlSelect2" name="metals"
                                 className={'form-control'}
                                 onChange={handleSymbolsChange}>
                             {
@@ -134,7 +139,7 @@ function HistoricalPage() {
                         <label>Pick Interval Date</label>
                         <DateRangePicker onCallback={handlePickerCallback}
                         >
-                            <input type="text" className={'form-control' + ((submitted&&!dateValid) ? ' is-invalid' : '')}/>
+                            <input type="text" name="picker-interval" className={'form-control' + ((submitted&&!dateValid) ? ' is-invalid' : '')}/>
                         </DateRangePicker>
                         {submitted && !dateValid &&
                         <div className="invalid-feedback">- Please select date from 01-01-2010 until today<br/>
@@ -146,7 +151,7 @@ function HistoricalPage() {
 
                 <div className="col-4">
                     <div className="form-group">
-                        <button className="submit-btn btn btn-primary" onClick={handleSubmit}>
+                        <button id="submit-btn" className="submit-btn btn btn-primary" onClick={handleSubmit}>
                             {loading && <span className="spinner-border spinner-border-sm mr-1"></span>}
                             Submit</button>
                     </div>

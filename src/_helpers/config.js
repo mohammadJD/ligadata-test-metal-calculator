@@ -1,6 +1,7 @@
 const siteUrl = 'https://metals-api.com';
 const apiUrl = siteUrl+ '/api';
-const accessKey ='7w2vft1sxd4n49ewyrtx17ek9448617f6t7te6gwcolmm0cc0ywn34kmc5ou';
+const accessKey ='5x1vfbfh5l6n87mz9d8yk5rr133y3v4ogf8q78x4j06a225gbuabvp3ifblk';
+// const accessKey ='';
 const currencies = ['USD','EUR','GBP','AUD','JPY'];
 const metals = [
     {
